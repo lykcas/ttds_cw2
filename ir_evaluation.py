@@ -21,13 +21,12 @@ for line in lines_q:
         item = item.split()
         qrels[query_number].append(item)
 
-for i in range(1, 2):
+for i in range(1, 7):
     filename = "S" + str(i) + ".results"
     # read
     f_S = open(filename)
     evalname = "S" + str(i) + ".eval"
-    # write
-    # f__ = open(evalname)
+
 
     # read from results file
     lines = f_S.readlines()
@@ -125,7 +124,7 @@ for i in range(1, 2):
 
     # nDCG@10 有变量名和前两个function重合，为了区分理解，在重合的变量名前加上了n10
     import math
-    nDCG_k_results = defaultdict(list)
+    nDCG_k_results = []
     nDCG_k_retrieved = defaultdict(list)  # {查询：[docno，rank]}
     ideal_retrieved = defaultdict(list)
     nDCG_sets_retrieved = defaultdict(list)
@@ -145,8 +144,8 @@ for i in range(1, 2):
             temp = [docno, rank]
             nDCG_k_retrieved[j].append(temp)
 
-        ideal_retrieved.setdefault(j, [])
-        ideal_retrieved[j] = sorted(nDCG_k_retrieved[j], key=lambda x: x[1], reverse=True)
+        # ideal_retrieved.setdefault(j, [])
+        # ideal_retrieved[j] = sorted(nDCG_k_retrieved[j], key=lambda x: x[1], reverse=True)
 
         nDCG_sets_retrieved.setdefault(j, [])
         nDCG_sets_retrieved[j] = copy.deepcopy(nDCG_k_retrieved[j][0: sets])
@@ -159,15 +158,15 @@ for i in range(1, 2):
             else:
                 dg = float(item_n[1])
                 dg = dg / math.log2(k)
-                dg = round(dg, 3)
+                # dg = round(dg, 3)
             dcgk += dg
-            dcgk = round(dcgk, 3)
+            # dcgk = round(dcgk, 3)
             nDCG_sets_retrieved[j][k-1].append(str(dg))
             nDCG_sets_retrieved[j][k-1].append(str(dcgk))
             k += 1
 
         ideal_sets_retrieved.setdefault(j, [])
-        ideal_sets_retrieved[j] = copy.deepcopy(ideal_retrieved[j][0: sets])
+        ideal_sets_retrieved[j] = copy.deepcopy(qrels[j][:])
         # ideal_sets_retrieved[j] = ideal_retrieved[j][0: sets]
         k = 1
         dcgk = 0
@@ -176,23 +175,52 @@ for i in range(1, 2):
                 dg = float(item_i[1])
             else:
                 dg = float(item_i[1]) / math.log2(k)
-                dg = round(dg, 3)
+                # dg = round(dg, 3)
             dcgk += dg
-            dcgk = round(dcgk, 3)
+            # dcgk = round(dcgk, 3)
             ideal_sets_retrieved[j][k-1].append(str(dg))
             ideal_sets_retrieved[j][k-1].append(str(dcgk))
             k += 1
+            len_flag = 0
+            if k > 10:
+                len_flag = 1
+                break
 
-        nDCG_k_results.setdefault(j, [])
-        flag = ideal_sets_retrieved[j][-1][3]
+        # nDCG_k_results.setdefault(j, [])
+        if len_flag == 1:
+            flag = ideal_sets_retrieved[j][sets - 1][3]
+        else:
+            flag = ideal_sets_retrieved[j][-1][3]
         dcgk = float(nDCG_sets_retrieved[j][-1][3])
         if flag == '0':
             ndcgk = 0
-            nDCG_k_results[j].append(str(ndcgk))
+            nDCG_k_results.append(str(ndcgk))
         else:
             ndcgk = dcgk / float(flag)
             ndcgk = round(ndcgk, 3)
-        nDCG_k_results[j].append(str(ndcgk))
+        nDCG_k_results.append(str(ndcgk))
+
+
+    # write in file
+    f__ = open(evalname, 'w')
+    f__.write('\t%-s\t%-s\t%-s\t%-s\t%-s\n' % ('P@10', 'R@50', 'r-Precision', 'AP', 'nDCG@10'))
+    p10 = 0
+    r50 = 0
+    rp = 0
+    ap_ = 0
+    ndcg10 = 0.0
+    ndcg20 = 0
+    for j in range(1, 11):
+        f__.write('%-d\t%-.3f\t%-.3f\t%-.3f\t%-.3f\t%-.3f\n' % (j, p_10_results[j-1], r_50_results[j-1], r_p_results[j-1], map_results[j-1], float(nDCG_k_results[j-1])))
+        p10 += p_10_results[j-1]
+        r50 += r_50_results[j-1]
+        rp += r_p_results[j-1]
+        ap_ += map_results[j-1]
+        ndcg10 += float(nDCG_k_results[j-1])
+    f__.write('%-s\t%-.3f\t%-.3f\t%-.3f\t%-.3f\t%-.3f\n' % ('mean', p10/10, r50/10, rp/10, ap_/10, ndcg10/10))
+    f__.close()
+
+
 
 
 
