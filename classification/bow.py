@@ -32,6 +32,7 @@ label_dict = {
 'Travel & Events':14
 }
 
+tweet_nltk = []
 for line in lines_f:
     line = line.strip()
     pos1 = line.find('\t')
@@ -55,7 +56,14 @@ for line in lines_f:
         tweets_list.append(tweets_content)
         tweets_label = tweets_content + '\t' + label
         tweets_list_label.append(tweets_label)
+        # tweet_nltk.append(tweets_content + '\t' + str(label_dict[label]))
 
+
+f_temp = open('train.txt', 'w')
+for content in tweets_list_label:
+    f_temp.write(content)
+    f_temp.write('\n')
+f_temp.close()
 
 
 tweets_dict = {}
@@ -120,6 +128,12 @@ for line in lines_test:
         tweets_content = tweets_string[0:0 - len_label].strip()
         tweets_label = tweets_content + '\t' + label
         tweets_test_list_label.append(tweets_label)
+
+f_temp = open('test.txt', 'w')
+for content in tweets_test_list_label:
+    f_temp.write(content)
+    f_temp.write('\n')
+f_temp.close()
 
 feats_test = []
 for line in tweets_test_list_label:
