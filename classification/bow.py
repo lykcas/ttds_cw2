@@ -144,5 +144,3 @@ for line in feats_test:
         ft_.write(' ' + str(line[i]) + ':1')
     ft_.write('\n')
 ft_.close()
-
-
