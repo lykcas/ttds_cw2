@@ -43,36 +43,37 @@ for line in lines_f:
         tweets_split = tweets_string.split()
         tweets_newstr = []
         for term in tweets_split: # delete link
-            if '#' in term:
-                pos_ = term.find('#')
-                tweets_newstr.append(term[pos_ + 1:])
-            if any(bad_word in term for bad_word in bad_words):
-                tweets_newstr.append('http')
-            if not any(bad_word in term for bad_word in bad_words) and term not in stops:
-                tweets_newstr.append(term)
+            tweets_newstr.append(term)
+            # if '#' in term:
+            #     pos_ = term.find('#')
+            #     tweets_newstr.append(term[pos_ + 1:])
+            # if any(bad_word in term for bad_word in bad_words):
+            #     tweets_newstr.append('http')
+            # if not any(bad_word in term for bad_word in bad_words) and term not in stops:
+            #     tweets_newstr.append(term)
         tweets_string = " ".join(tweets_newstr)
         label = tweets_string[0-len_label:]
         tweets_content = tweets_string[0:0-len_label].strip()
         tweets_list.append(tweets_content)
         tweets_label = tweets_content + '\t' + label
         tweets_list_label.append(tweets_label)
-        # tweet_nltk.append(tweets_content + '\t' + str(label_dict[label]))
 
 
-f_temp = open('train.txt', 'w')
-for content in tweets_list_label:
-    f_temp.write(content)
-    f_temp.write('\n')
-f_temp.close()
+# f_temp = open('train.txt', 'w')
+# for content in tweets_list_label:
+#     f_temp.write(content)
+#     f_temp.write('\n')
+# f_temp.close()
 
 
 tweets_dict = {}
 unique_id = 1
 for line in tweets_list:
-    line = line.translate(trantab)
+    # line = line.translate(trantab)
     line = line.split()
     for item in line:
-        if not tweets_dict.__contains__(item) and item not in stops:
+        if not tweets_dict.__contains__(item):
+        # if not tweets_dict.__contains__(item) and item not in stops:
             tweets_dict[item] = unique_id
             unique_id += 1
 
@@ -82,7 +83,7 @@ for line in tweets_list_label:
     pos = line.find('\t')
     label = line[pos+1:]
     content = line[0:pos]
-    content = content.translate(trantab)
+    # content = content.translate(trantab)
     content = content.split()
     temp = []
     temp.append(label_dict[label])
@@ -116,30 +117,32 @@ for line in lines_test:
         tweets_split = tweets_string.split()
         tweets_newstr = []
         for term in tweets_split: # delete link
-            if '#' in term:
-                pos_ = term.find('#')
-                tweets_newstr.append(term[pos_+1:])
-            if any(bad_word in term for bad_word in bad_words):
-                tweets_newstr.append('http')
-            if not any(bad_word in term for bad_word in bad_words) and term not in stops:
-                tweets_newstr.append(term)
+            tweets_newstr.append(term)
+            # if '#' in term:
+            #     pos_ = term.find('#')
+            #     tweets_newstr.append(term[pos_+1:])
+            # if any(bad_word in term for bad_word in bad_words):
+            #     tweets_newstr.append('http')
+            # if not any(bad_word in term for bad_word in bad_words) and term not in stops:
+            #     tweets_newstr.append(term)
         tweets_string = " ".join(tweets_newstr)
         label = tweets_string[0 - len_label:]
         tweets_content = tweets_string[0:0 - len_label].strip()
         tweets_label = tweets_content + '\t' + label
         tweets_test_list_label.append(tweets_label)
 
-f_temp = open('test.txt', 'w')
-for content in tweets_test_list_label:
-    f_temp.write(content)
-    f_temp.write('\n')
-f_temp.close()
+# f_temp = open('test.txt', 'w')
+# for content in tweets_test_list_label:
+#     f_temp.write(content)
+#     f_temp.write('\n')
+# f_temp.close()
 
 feats_test = []
 for line in tweets_test_list_label:
     pos = line.find('\t')
     label = line[pos+1:]
-    content = line[0:pos].translate(trantab).split()
+    # content = line[0:pos].translate(trantab).split()
+    content = line[0:pos].split()
     temp = []
     temp.append(label_dict[label])
     for item in content:

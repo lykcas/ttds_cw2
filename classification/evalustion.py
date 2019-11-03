@@ -62,7 +62,7 @@ for i in range(1, 15):
     f_all.append(round(f, 3))
     f1_sum += f
 
-f_eval = open('Eval5.txt', 'w')
+f_eval = open('Eval0.txt', 'w')
 accu = tp_all/(tweet_id - 1)
 f_eval.write('Accuracy = ' + str(round(accu, 3)) + '\n')
 macrof1 = f1_sum/14

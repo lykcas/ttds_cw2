@@ -1,3 +1,4 @@
+import sns as sns
 from sklearn.feature_extraction.text import TfidfVectorizer
 import nltk
 tfidf_vec = TfidfVectorizer()
@@ -31,8 +32,10 @@ for line in train:
 train_tf = TfidfVectorizer(max_df=0.5)
 train_features = train_tf.fit_transform(content)
 
+
 from sklearn.naive_bayes import MultinomialNB
 clf = MultinomialNB(alpha=0.001).fit(train_features, label_list)
+
 
 f = open('test.txt', 'r')
 test = f.readlines()
@@ -52,6 +55,10 @@ test_features = test_tf.fit_transform(test_content)
 predicted_labels = clf.predict(test_features)
 from sklearn import metrics
 test_precession = metrics.accuracy_score(test_label_list, predicted_labels)
+
+
+
+
 
 train_content = train.split('\n')
 word_list = nltk.word_tokenize(train)
