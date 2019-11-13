@@ -16,7 +16,9 @@ tweets_list = []
 tweets_list_label = []
 punctuations = r"\"%&'()*+,-./;<=>?[\\]^_`{|}~…1234567890"
 trantab = str.maketrans(dict.fromkeys(punctuations, ''))
-bad_words = ['http', 'RT', 'twitter']
+trantab1 = str.maketrans(dict.fromkeys(string.punctuation, ''))
+# bad_words = ['http', 'RT', 'twitter']
+bad_words = ['http']
 emoji_list = [':)', ';-)', ':-)', ';)', ':D', ';D', '=)',
               'lol', 'Lol', 'LOL', '(:', '(-:', ':-D', 'XD',
               'X-D', 'xD', '<3', ';-D', '(;', '(-;', ':-(',
@@ -55,23 +57,29 @@ for line in lines_f:
         tweets_newstr = []  # new a temp list
         for term in tweets_split:
             # term = stem(term)  # Stemming
+            if (not any(bad_word in term for bad_word in bad_words)) and (term not in stops):  # delete stopwords, badwords
+            # if not any(bad_word in term for bad_word in bad_words):
+                tweets_newstr.append(term)
             # term = re.sub(r'(.)\1{2,}', r'\1\1\1', term)  # simplify repeated letters
-            if ':' in term and '@' not in term:  # colon process
+            if ':' in term and '@' not in term:  # Duplicate colon process
                 tweets_newstr.append(':')
             # tweets_newstr.append(term)  # do nothing on text
-            # if '@' in term:  # Duplicating @surname's @
-            #     tweets_newstr.append('@')
+            if '@' in term:  # Duplicating @surname's @
+                pos_1 = term.find('@')
+                tweets_newstr.append(term[pos_1 + 1:])
             if '#' in term:  # Duplicate hushtag
                 pos_ = term.find('#')
                 tweets_newstr.append(term[pos_ + 1:])
-            if any(emoji in term for emoji in emoji_list):  # change emoji to 'emoji'
-                tweets_newstr.append('emoji')
+            if '$' in term:
+                tweets_newstr.append('$')
+            # if any(emoji in term for emoji in emoji_list):  # change emoji to 'emoji'
+            #     tweets_newstr.append('emoji')
             if 'http' in term:  # change link to 'http'
                 tweets_newstr.append('http')
-            if not any(bad_word in term for bad_word in bad_words) and term not in stops:  # delete stopwords, badwords
-                tweets_newstr.append(term)
         tweets_string = " ".join(tweets_newstr)
-        tweets_content = tweets_string.strip().lower()
+        # tweets_content = tweets_string.strip()  # Do nothing
+        # tweets_content = tweets_string.strip().lower()  # Lowercase
+        tweets_content = tweets_string.strip().lower().translate(trantab)  # Delete punctuation
         tweets_list.append(tweets_content)
         tweets_label = tweets_content + '\t' + label
         tweets_list_label.append(tweets_label)
@@ -89,12 +97,12 @@ unique_id = 1
 # tfidf_list = []
 term_dict = {}
 for line in tweets_list:
-    line = line.translate(trantab)
+    # line = line.translate(trantab)  # delete punctuation
     line = line.split()
     # tfidf_list.append(line)
     for item in line:
-        # if not tweets_dict.__contains__(item):
-        if not tweets_dict.__contains__(item) and item not in stops:
+        if not tweets_dict.__contains__(item):  # do nothing
+        # if not tweets_dict.__contains__(item) and item not in stops:
             # term_dict[item] = 0
             tweets_dict[item] = unique_id
             unique_id += 1
@@ -113,7 +121,7 @@ for line in tweets_list_label:
     pos = line.find('\t')
     label = line[pos+1:]
     content = line[0:pos]
-    content = content.translate(trantab)
+    # content = content.translate(trantab)
     content = content.split()
     temp = []
     temp.append(label_dict[label])
@@ -151,25 +159,30 @@ for line in lines_test:
         # if discount != 0:
         #     tweets_newstr.append('discount')
         for term in tweets_split: # delete link
-            # tweets_newstr.append(term)
-            # if '@' in term:
-            #     tweets_newstr.append('@')
             # term = stem(term)
+            if (not any(bad_word in term for bad_word in bad_words)) and (term not in stops):
+            # if not any(bad_word in term for bad_word in bad_words):
+                tweets_newstr.append(term)
             # term = re.sub(r'(.)\1{2,}', r'\1\1\1', term)
+            # tweets_newstr.append(term)
+            if '@' in term:  # Duplicating @surname's @
+                pos_1 = term.find('@')
+                tweets_newstr.append(term[pos_1 + 1:])
             if ':' in term and '@' not in term:
                 tweets_newstr.append(':')
-            # if ':)' or ';-)' or ':-)' or ';)' or ':D' or ';D' or '=)' or 'lol' or 'Lol' or 'LOL' in term:
-            if any(emoji in term for emoji in emoji_list):
-                tweets_newstr.append('emoji')
+            # if any(emoji in term for emoji in emoji_list):
+            #     tweets_newstr.append('emoji')
             if '#' in term:
                 pos_ = term.find('#')
                 tweets_newstr.append(term[pos_+1:])
+            if '$' in term:
+                tweets_newstr.append('$')
             if 'http' in term:
                 tweets_newstr.append('http')
-            if not any(bad_word in term for bad_word in bad_words) and term not in stops:
-                tweets_newstr.append(term)
         tweets_string = " ".join(tweets_newstr)
-        tweets_content = tweets_string.strip().lower()
+        # tweets_content = tweets_string.strip()  # Do nothing
+        # tweets_content = tweets_string.strip().lower()  # Lowercase
+        tweets_content = tweets_string.strip().lower().translate(trantab)
         tweets_label = tweets_content + '\t' + label
         tweets_test_list_label.append(tweets_label)
 
@@ -183,8 +196,8 @@ feats_test = []
 for line in tweets_test_list_label:
     pos = line.find('\t')
     label = line[pos+1:]
-    content = line[0:pos].translate(trantab).split()
-    # content = line[0:pos].split()
+    # content = line[0:pos].translate(trantab).split()
+    content = line[0:pos].split()
     temp = []
     temp.append(label_dict[label])
     for item in content:
