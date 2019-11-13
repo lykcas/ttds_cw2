@@ -15,13 +15,13 @@ stops = stops.split()
 tweets_list = []
 tweets_list_label = []
 punctuations = r"\"%&'()*+,-./;<=>?[\\]^_`{|}~…1234567890"
+trantab = str.maketrans(dict.fromkeys(punctuations, ''))
 bad_words = ['http', 'RT', 'twitter']
 emoji_list = [':)', ';-)', ':-)', ';)', ':D', ';D', '=)',
               'lol', 'Lol', 'LOL', '(:', '(-:', ':-D', 'XD',
               'X-D', 'xD', '<3', ';-D', '(;', '(-;', ':-(',
               ':(']
 
-trantab = str.maketrans(dict.fromkeys(punctuations, ''))
 label_dict = {
 'Autos & Vehicles' : 1,
 'Comedy':2,
@@ -44,33 +44,31 @@ for line in lines_f:
     line = line.strip()
     pos1 = line.find('\t')
     pos2 = line.rfind('\t')
-    len_label = len(line) - pos2 - 1
+    len_label = len(line) - pos2 - 1  # Get the tweet's label length
     if pos1 > 0:
-        label = line[0 - len_label:]
-        tweets_string = line[pos1+1:pos2]
-        # discount = tweets_string.find('% off')
-        tweets_split = tweets_string.split()
-        tweets_newstr = []
-        for term in tweets_split: # delete link
-            # term = stem(term)
-            term = re.sub(r'(.)\1{2,}', r'\1\1\1', term)
-            if ':' in term and '@' not in term:
+        label = line[0 - len_label:]  # Get the tweet's label
+        tweets_string = line[pos1+1:pos2]  # Get the tweet's content
+        # discount = tweets_string.find('% off')  # change '50% OFF' to 'discount'
+        # if discount != 0:
+        #     tweets_newstr.append('discount')
+        tweets_split = tweets_string.split()  # string to list
+        tweets_newstr = []  # new a temp list
+        for term in tweets_split:
+            # term = stem(term)  # Stemming
+            # term = re.sub(r'(.)\1{2,}', r'\1\1\1', term)  # simplify repeated letters
+            if ':' in term and '@' not in term:  # colon process
                 tweets_newstr.append(':')
-            # tweets_newstr.append(term)
-            # if '@' in term:
+            # tweets_newstr.append(term)  # do nothing on text
+            # if '@' in term:  # Duplicating @surname's @
             #     tweets_newstr.append('@')
-            if '#' in term:
+            if '#' in term:  # Duplicate hushtag
                 pos_ = term.find('#')
                 tweets_newstr.append(term[pos_ + 1:])
-            # if ':)' or ';-)' or ':-)' or ';)' or ':D' or ';D' or '=)' or 'lol' or 'Lol' or 'LOL' in term:
-            if any(emoji in term for emoji in emoji_list):
-            # if term == emo for emo in emoji_list:
+            if any(emoji in term for emoji in emoji_list):  # change emoji to 'emoji'
                 tweets_newstr.append('emoji')
-            # if 'lol' in term:
-            #     tweets_newstr.append('emoji')
-            if 'http' in term:
+            if 'http' in term:  # change link to 'http'
                 tweets_newstr.append('http')
-            if not any(bad_word in term for bad_word in bad_words) and term not in stops:
+            if not any(bad_word in term for bad_word in bad_words) and term not in stops:  # delete stopwords, badwords
                 tweets_newstr.append(term)
         tweets_string = " ".join(tweets_newstr)
         tweets_content = tweets_string.strip().lower()
@@ -101,12 +99,11 @@ for line in tweets_list:
             tweets_dict[item] = unique_id
             unique_id += 1
 
-# tweets_count = len(tweets_list)
-#
-# for term in tweets_dict:
-#     for line_ in tfidf_list:
-#         if term in line_:
-#             term_dict[item] += 1
+f_temp = open('tweets_dict.txt', 'w')
+for content in tweets_dict:
+    f_temp.write(content + ' ')
+    f_temp.write('\n')
+f_temp.close()
 
 
 
@@ -151,12 +148,14 @@ for line in lines_test:
         # discount = tweets_string.find('% off')
         tweets_split = tweets_string.split()
         tweets_newstr = []
+        # if discount != 0:
+        #     tweets_newstr.append('discount')
         for term in tweets_split: # delete link
             # tweets_newstr.append(term)
             # if '@' in term:
             #     tweets_newstr.append('@')
             # term = stem(term)
-            term = re.sub(r'(.)\1{2,}', r'\1\1\1', term)
+            # term = re.sub(r'(.)\1{2,}', r'\1\1\1', term)
             if ':' in term and '@' not in term:
                 tweets_newstr.append(':')
             # if ':)' or ';-)' or ':-)' or ';)' or ':D' or ';D' or '=)' or 'lol' or 'Lol' or 'LOL' in term:
